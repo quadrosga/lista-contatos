@@ -49,8 +49,15 @@ const Button = styled.button`
   }
 `;
 
+interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 const Contacts: React.FC = () => {
-  const contacts = useSelector((state: RootState) => state.contacts);
+  const contacts = useSelector((state: RootState) => state.contacts.contacts);
   const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -67,7 +74,7 @@ const Contacts: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    const contact = contacts.find((contact) => contact.id === id);
+    const contact = contacts.find((contact: Contact) => contact.id === id);
     if (contact) {
       setName(contact.name);
       setEmail(contact.email);
@@ -118,7 +125,7 @@ const Contacts: React.FC = () => {
         )}
       </div>
       <ContactList>
-        {contacts.map((contact) => (
+        {contacts.map((contact: Contact) => (
           <ContactItem key={contact.id}>
             <span>
               {contact.name} - {contact.email} - {contact.phone}
