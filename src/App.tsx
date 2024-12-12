@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import contactsReducer, {
   addContact,
   removeContact,
@@ -16,9 +16,24 @@ const store = configureStore({
   },
 });
 
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin: 0;
+    padding: 0;
+    // display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Roboto, sans-serif;
+    background-color: #f5f5f5;
+  }
+`;
+
 const AppContainer = styled.div`
-  font-family: Arial, sans-serif;
-  margin: 20px;
+  input {
+    margin-right: 8px;
+    padding: 8px;
+  }
 `;
 
 const ContactList = styled.ul`
@@ -36,11 +51,11 @@ const ContactItem = styled.li`
 `;
 
 const Button = styled.button`
-  margin-left: 10px;
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 8px;
+  margin-left: 8px;
   border-radius: 5px;
   cursor: pointer;
 
@@ -64,7 +79,8 @@ const Contacts: React.FC = () => {
   const [phone, setPhone] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
     if (name && email && phone) {
       dispatch(addContact({ id: Date.now(), name, email, phone }));
       setName("");
@@ -83,7 +99,8 @@ const Contacts: React.FC = () => {
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
     if (editingId !== null) {
       dispatch(updateContact({ id: editingId, name, email, phone }));
       setName("");
@@ -99,7 +116,8 @@ const Contacts: React.FC = () => {
 
   return (
     <div>
-      <div>
+      <h1>Lista de Contatos</h1>
+      <form onSubmit={editingId === null ? handleAdd : handleUpdate}>
         <input
           type="text"
           placeholder="Nome Completo"
@@ -123,7 +141,7 @@ const Contacts: React.FC = () => {
         ) : (
           <Button onClick={handleUpdate}>Atualizar</Button>
         )}
-      </div>
+      </form>
       <ContactList>
         {contacts.map((contact: Contact) => (
           <ContactItem key={contact.id}>
@@ -144,8 +162,8 @@ const Contacts: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Provider store={store}>
+      <GlobalStyle />
       <AppContainer>
-        <h1>Lista de Contatos</h1>
         <Contacts />
       </AppContainer>
     </Provider>
