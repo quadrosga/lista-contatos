@@ -20,7 +20,6 @@ const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     padding: 0;
-    // display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -33,6 +32,8 @@ const AppContainer = styled.div`
   input {
     margin-right: 8px;
     padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
   }
 `;
 
@@ -78,10 +79,32 @@ const Contacts: React.FC = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
+
+  const validateForm = () => {
+    let valid = true;
+    const errors = { name: "", email: "", phone: "" };
+
+    if (!name) {
+      valid = false;
+      errors.name = "Nome é obrigatório.";
+    }
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      valid = false;
+      errors.email = "Email inválido.";
+    }
+    if (!phone || !/^\d+$/.test(phone)) {
+      valid = false;
+      errors.phone = "Telefone deve conter apenas números.";
+    }
+
+    setErrors(errors);
+    return valid;
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && email && phone) {
+    if (validateForm()) {
       dispatch(addContact({ id: Date.now(), name, email, phone }));
       setName("");
       setEmail("");
@@ -101,7 +124,7 @@ const Contacts: React.FC = () => {
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId !== null) {
+    if (validateForm() && editingId !== null) {
       dispatch(updateContact({ id: editingId, name, email, phone }));
       setName("");
       setEmail("");
@@ -124,22 +147,34 @@ const Contacts: React.FC = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+        {errors.name && (
+          <p style={{ color: "red", margin: "4px 0" }}>{errors.name}</p>
+        )}
+
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        {errors.email && (
+          <p style={{ color: "red", margin: "4px 0" }}>{errors.email}</p>
+        )}
+
         <input
           type="tel"
           placeholder="Telefone"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
         />
+        {errors.phone && (
+          <p style={{ color: "red", margin: "4px 0" }}>{errors.phone}</p>
+        )}
+
         {editingId === null ? (
-          <Button onClick={handleAdd}>Adicionar</Button>
+          <Button type="submit">Adicionar</Button>
         ) : (
-          <Button onClick={handleUpdate}>Atualizar</Button>
+          <Button type="submit">Atualizar</Button>
         )}
       </form>
       <ContactList>
